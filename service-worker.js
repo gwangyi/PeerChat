@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/PeerChat/precache-manifest.f1728bcd3cef769d17354311c8ade98f.js"
+  "/PeerChat/precache-manifest.2c1cff330d2799116560bf9e52f84385.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "pchat"});
