@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <h1>My ID: {{ peerId }}</h1>
     <span v-if="errMsg">{{ errMsg }}</span>
     <section>
       <input
@@ -51,7 +52,8 @@ export default class App extends Vue {
 
   created() {
     console.log("created");
-    this.peerId = this.$peer.peer.id;
+    this.$peer = getPeer();
+    this.peerId = this.$peer.peerId;
     this.$peer.on("open", ({ id }: { id: string }) => {
       this.peerId = id;
     });
@@ -86,6 +88,9 @@ export default class App extends Vue {
   }
 
   send() {
+    if (!this.message) {
+      return;
+    }
     this.messages.unshift(`${this.peerId}: ${this.message}`);
     this.$peer.send({ msg: this.message });
     this.message = "";

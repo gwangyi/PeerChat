@@ -38,7 +38,16 @@ interface EnsurePeerChatOptions {
   maxHeartbeatWait: number;
 }
 
-export class PeerChat extends EventEmitter {
+interface PeerChat {
+  connect(peer: string): void;
+  send(msg: Message): void;
+  destroy(): void;
+  on(event: string, handler: EventEmitter.ListenerFn): void;
+  peers: string[];
+  peerId: string;
+}
+
+class PeerChatImpl extends EventEmitter implements PeerChat {
   peer: Peer;
 
   private _peerId = "";
@@ -213,6 +222,10 @@ export class PeerChat extends EventEmitter {
     return Object.keys(this._conns);
   }
 
+  get peerId(): string {
+    return this.peer.id;
+  }
+
   destroy() {
     this.emit("destroyed");
     for (const peer in this._conns) {
@@ -224,13 +237,29 @@ export class PeerChat extends EventEmitter {
   }
 }
 
-let peer: PeerChat | null = null;
-let latestConfig: PeerChatOptions;
+/*eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function*/
+class DummyPeerChatImpl implements PeerChat {
+  connect(_1: string) {}
+  send(_2: Message) {}
+  destroy() {}
+  on(_1: string, _2: EventEmitter.ListenerFn) {}
 
-export default (config?: PeerChatOptions) => {
+  peers: string[] = [];
+  peerId = "";
+}
+/*eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function*/
+
+let peer: PeerChatImpl | null = null;
+let latestConfig: PeerChatOptions | null = null;
+
+export default (config?: PeerChatOptions): PeerChat => {
   if (config) latestConfig = config;
   if (!peer || peer.peer.destroyed) {
-    peer = new PeerChat(latestConfig);
+    if (!latestConfig) {
+      return new DummyPeerChatImpl();
+    } else {
+      peer = new PeerChatImpl(latestConfig);
+    }
   }
   return peer;
 };
